@@ -1,35 +1,56 @@
+import chalk from 'chalk';
 import { program } from 'commander';
 import log from 'loglevel';
-import { DEFAULT_PAKE_OPTIONS } from './defaults.js';
-import { PakeCliOptions } from './types.js';
-import { validateNumberInput, validateUrlInput } from './utils/validate.js';
-import handleInputOptions from './options/index.js';
-import BuilderFactory from './builders/BuilderFactory.js';
-import { checkUpdateTips } from './helpers/updater.js';
-// @ts-expect-error
 import packageJson from '../package.json';
+import BuilderProvider from './builders/BuilderProvider';
+import { DEFAULT_PAKE_OPTIONS as DEFAULT } from './defaults';
+import { checkUpdateTips } from './helpers/updater';
+import handleInputOptions from './options/index';
 
-program.version(packageJson.version).description('A cli application can turn any webpage into a desktop app with Rust.');
+import { PakeCliOptions } from './types';
+import { validateNumberInput, validateUrlInput } from './utils/validate';
+
+const { green, yellow }= chalk;
+const logo = `${chalk.green(' ____       _')}
+${green('|  _ \\ __ _| | _____')}
+${green('| |_) / _` | |/ / _ \\')}
+${green('|  __/ (_| |   <  __/')}  ${yellow('https://github.com/tw93/pake')}
+${green('|_|   \\__,_|_|\\_\\___|  can turn any webpage into a desktop app with Rust.')}
+`;
 
 program
-  .showHelpAfterError()
-  .argument('[url]', 'the web url you want to package', validateUrlInput)
-  .option('-n, --name <string>', 'application name')
-  .option('-i, --icon <string>', 'application icon', DEFAULT_PAKE_OPTIONS.icon)
-  .option('-w, --width <number>', 'window width', validateNumberInput, DEFAULT_PAKE_OPTIONS.width)
-  .option('-h, --height <number>', 'window height', validateNumberInput, DEFAULT_PAKE_OPTIONS.height)
-  .option('-f, --fullscreen', 'makes the packaged app start in full screen', DEFAULT_PAKE_OPTIONS.fullscreen)
-  .option('-t, --transparent', 'transparent title bar', DEFAULT_PAKE_OPTIONS.transparent)
-  .option('-r, --no-resizable', 'whether the window can be resizable', DEFAULT_PAKE_OPTIONS.resizable)
-  .option('-d, --debug', 'debug', DEFAULT_PAKE_OPTIONS.debug)
-  .option('-m, --multi-arch', "Supports both Intel and m1 chips, only for Mac.", DEFAULT_PAKE_OPTIONS.multiArch)
-  .action(async (url: string, options: PakeCliOptions) => {
+  .addHelpText('beforeAll', logo)
+  .usage(`[url] [options]`)
+  .showHelpAfterError();
 
+program
+  .argument('[url]', 'The web URL you want to package', validateUrlInput)
+  .option('--name <string>', 'Application name')
+  .option('--icon <string>', 'Application icon', DEFAULT.icon)
+  .option('--width <number>', 'Window width', validateNumberInput, DEFAULT.width)
+  .option('--height <number>', 'Window height', validateNumberInput, DEFAULT.height)
+  .option('--transparent', 'Only for Mac, hide title bar', DEFAULT.transparent)
+  .option('--fullscreen', 'Start in full screen', DEFAULT.fullscreen)
+  .option('--user-agent <string>', 'Custom user agent', DEFAULT.userAgent)
+  .option('--show-menu', 'Show menu in app', DEFAULT.showMenu)
+  .option('--show-system-tray', 'Show system tray in app', DEFAULT.showSystemTray)
+  .option('--system-tray-icon <string>', 'Custom system tray icon', DEFAULT.systemTrayIcon)
+  .option('--iter-copy-file', 'Copy files when URL is a local file', DEFAULT.iterCopyFile)
+  .option('--multi-arch', 'Only for Mac, supports both Intel and M1', DEFAULT.multiArch)
+  .option('--targets <string>', 'Only for Linux, option "deb" or "appimage"', DEFAULT.targets)
+  .option('--debug', 'Debug mode', DEFAULT.debug)
+  .version(packageJson.version, '-v, --version', 'Output the current version')
+  .action(async (url: string, options: PakeCliOptions) => {
     await checkUpdateTips();
 
     if (!url) {
-      // 直接 pake 不需要出现url提示
-      program.help();
+      program.outputHelp(str => {
+        return str
+          .split('\n')
+          .filter(line => !/((-h,|--help)|((-v|-V),|--version))\s+.+$/.test(line))
+          .join('\n');
+      });
+      process.exit(0);
     }
 
     log.setDefaultLevel('info');
@@ -37,12 +58,12 @@ program
       log.setLevel('debug');
     }
 
-    const builder = BuilderFactory.create();
-    await builder.prepare();
-
     const appOptions = await handleInputOptions(options, url);
+    log.debug('PakeAppOptions', appOptions);
 
-    await builder.build(url, appOptions);
+    const builder = BuilderProvider.create(appOptions);
+    await builder.prepare();
+    await builder.build(url);
   });
 
 program.parse();

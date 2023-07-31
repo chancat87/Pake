@@ -1,23 +1,25 @@
-## 安装
+<h4 align="right"><strong>English</strong> | <a href="https://github.com/tw93/Pake/blob/master/bin/README_CN.md">简体中文</a></h4>
 
-请确保 Node 版本>=16 如 16.8，不要使用 sudo 进行安装，假如 npm 报没有权限可以参考 [How to fix npm throwing error without sudo](https://stackoverflow.com/questions/16151018/how-to-fix-npm-throwing-error-without-sudo)。
+## Installation
+
+Ensure that your Node.js version is 16.0 or higher (e.g., 16.8). Avoid using `sudo` for the installation. If you encounter permission issues with npm, refer to [How to fix npm throwing error without sudo](https://stackoverflow.com/questions/16151018/how-to-fix-npm-throwing-error-without-sudo).
 
 ```bash
-npm install -g pake-cli
+npm install pake-cli -g 
 ```
 
-## Windows/Linux 注意点
+## Considerations for Windows & Linux Users
 
-- **十分重要** 查看 Tauri 提供的[依赖指南](https://tauri.app/v1/guides/getting-started/prerequisites)
-- 对于 windows（至少安装了`Win10 SDK(10.0.19041.0)` 与`Visual Studio build tool 2022（>=17.2）`），还需要额外安装：
+- **CRITICAL**: Consult [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) before proceeding.
+- For Windows users (ensure that `Win10 SDK (10.0.19041.0)` and `Visual Studio build tool 2022 (>=17.2)` are installed), additional installations are required:
 
   1. Microsoft Visual C++ 2015-2022 Redistributable (x64)
   2. Microsoft Visual C++ 2015-2022 Redistributable (x86)
-  3. Microsoft Visual C++ 2012 Redistributable (x86)（可选）
-  4. Microsoft Visual C++ 2013 Redistributable (x86)（可选）
-  5. Microsoft Visual C++ 2008 Redistributable (x86)（可选）
+  3. Microsoft Visual C++ 2012 Redistributable (x86) (optional)
+  4. Microsoft Visual C++ 2013 Redistributable (x86) (optional)
+  5. Microsoft Visual C++ 2008 Redistributable (x86) (optional)
 
-- 此外 Ubuntu 在开始之前可以运行如下命令，安装前期所需依赖。
+- For Ubuntu users, execute the following commands to install the required libraries before compiling:
 
   ```bash
   sudo apt install libdbus-1-dev \
@@ -35,122 +37,150 @@ npm install -g pake-cli
       gnome-video-effects-extra
   ```
 
-## 用法
+## Usage
 
 ```bash
-pake url [options]
+pake [url] [options]
 ```
 
-打包完成后的应用程序默认为当前工作目录，首次打包由于需配置好环境，需要一些时间，请耐心等待即可。
+The packaged application will be located in the current working directory by default. The first packaging might take some time due to environment configuration. Please be patient.
 
-> **Note**:
-> 打包需要用 `Rust` 环境，如果没有 `Rust`，会提示确认安装。如遇安装失败或超时，可[自行安装](https://www.rust-lang.org/tools/install)。
+> **Note**: Packaging requires the Rust environment. If Rust is not installed, you will be prompted for installation confirmation. In case of installation failure or timeout, you can [install it manually](https://www.rust-lang.org/tools/install).
 
-### url
+### [url]
 
-url 为你需要打包的网页链接 🔗，必须提供。
+The URL is the link to the web page you want to package or the path to a local HTML file. This is mandatory.
 
 ### [options]
 
-提供了一些特定的选项，打包时可以传递对应参数达到定制化的效果。
+Various options are available for customization. You can pass corresponding arguments during packaging to achieve the desired configuration.
 
 #### [name]
 
-应用名称，如输入时未指定，会提示你输入，尽量使用英语。
+Specify the application name. If not provided, you will be prompted to enter it. It is recommended to use English.
 
 ```shell
 --name <value>
-# 或者
--n <value>
 ```
 
 #### [icon]
 
-应用 icon，支持本地/远程文件，默认为 Pake 自带图标，定制的可以去 [icon-icons](https://icon-icons.com) 或 [macOSicons](https://macosicons.com/#/) 搜索下载。
+Specify the application icon. Supports both local and remote files. By default, it uses the Pake brand icon. For custom icons, visit [icon icons](https://icon-icons.com) or [macOSicons](https://macosicons.com/#/).
 
-- MacOS 下必须为 `.icns`
-- Windows 下必须为 `.ico`
-- Linux 下必须为 `.png`
+- For macOS, use `.icns` format.
+- For Windows, use `.ico` format.
+- For Linux, use `.png` format.
 
 ```shell
 --icon <path>
-# 或者
--i <path>
 ```
 
 #### [height]
 
-打包后的应用窗口高度，默认 `780px`。
+Set the height of the application window. Default is `780px`.
 
 ```shell
 --height <number>
-# 或者
--h <number>
 ```
 
 #### [width]
 
-打包后的应用窗口宽度，默认 `1200px`。
+Set the width of the application window. Default is `1200px`.
 
 ```shell
 --width <number>
-# 或者
--w <number>
 ```
 
 #### [transparent]
 
-是否开启沉浸式头部，默认为 `false` 不开启。使用下面的命令来开启该功能。
+Enable or disable immersive header. Default is `false`. Use the following command to enable this feature, macOS only.
 
 ```shell
 --transparent
-# 或者
--t
 ```
 
 #### [fullscreen]
 
-打开应用后是否开启全屏，默认为 `false`，使用下面的命令开启该功能。
+Determine whether the application launches in full screen. Default is `false`. Use the following command to enable full screen.
 
 ```shell
 --fullscreen
-# 或者
--f
-```
-
-#### [resize]
-
-是否可以拖动大小，默认为 `true` 可拖动。使用下面的命令来关闭该功能。
-
-```shell
---no-resizable
-# 或者
--r
 ```
 
 #### [multi-arch]
 
-打包结果同时支持英特尔和 m1 芯片，仅适用于 MacOS，默认为 `false`。
+Package the application to support both Intel and M1 chips, exclusively for macOS. Default is `false`.
 
-##### 准备工作
+##### Prerequisites
 
-- 注意：开启该选项后，需要用 rust 官网的 rustup 安装 rust，不支持 brew 安装。
-- 对于 intel 芯片用户，需要安装 arm64 跨平台包，使安装包支持 m1 芯片，使用下面命令安装。
+- Note: After enabling this option, Rust must be installed using rustup from the official Rust website. Installation via brew is not supported.
+- For Intel chip users, install the arm64 cross-platform package to support M1 chips using the following command:
 
 ```shell
 rustup target add aarch64-apple-darwin
 ```
 
-- 对于 M1 芯片用户，需要安装 x86 跨平台包，使安装包支持 interl 芯片，使用下面的命令安装。
+- For M1 chip users, install the x86 cross-platform package to support Intel chips using the following command:
 
 ```shell
 rustup target add x86_64-apple-darwin
 ```
 
-##### 使用方法
+##### Usage
 
 ```shell
 --multi-arch
-# 或者
--m
 ```
+
+#### [targets]
+
+Select the output package format for Linux. Options include `deb`, `appimage`, or `all`. If `all` is selected, both `deb` and `appimage` will be packaged. Default is `all`.
+
+```shell
+--targets <format>
+```
+
+#### [user-agent]
+
+Customize the browser user agent. Default is empty.
+
+```shell
+--user-agent <value>
+```
+
+#### [show-menu]
+
+Display the menu bar. Default is not to display. Use the following command to enable the menu bar. Recommended for macOS users.
+
+```shell
+--show-menu
+```
+
+#### [show-system-tray]
+
+Display the system tray. Default is not to display. Use the following command to enable the system tray.
+
+```shell
+--show-system-tray
+```
+
+#### [system-tray-icon]
+
+Specify the system tray icon. This is only effective when the system tray is enabled. The icon must be in `.ico` or `.png` format and should be an image with dimensions ranging from 32x32 to 256x256 pixels.
+
+```shell
+--system-tray-icon <path>
+```
+
+#### [iter-copy-file]
+
+Enable recursive copying. When the URL is a local file path, enabling this option will copy the folder containing the file specified in the URL, as well as all sub-files, to the Pake static folder. This is disabled by default.
+
+```shell
+--iter-copy-file
+```
+
+## Conclusion
+
+After completing the above steps, your application should be successfully packaged. Please note that the packaging process may take some time depending on your system configuration and network conditions. Be patient, and once the packaging is complete, you can find the application installer in the specified directory.
+
